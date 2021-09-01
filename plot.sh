@@ -2,7 +2,7 @@
 
 set -e
 
-log=ssh.log.wat
+log=ssh-mem.log
 
 pids=${1:-$(cat $log | cut -d ' ' -f 1 | sort -u)}
 

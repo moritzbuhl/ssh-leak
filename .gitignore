@@ -1,4 +1,4 @@
 junk
 known_hosts
 mux*
-ssh.log*
+ssh-mem.log.*
