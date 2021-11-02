@@ -1,4 +1,6 @@
 junk
 known_hosts
-mux*
-ssh-mem.log.*
+run/
+ktrace.out
+*.core
+.gdb_history

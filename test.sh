@@ -4,17 +4,25 @@ set -eu
 
 find /usr/src/sys > junk
 
-KTRACE="LD_PRELOAD=/usr/obj/lib/libc/libc.so.96.0 MALLOC_OPTIONS=TTD ktrace -tu"
+log=$PWD/run/ssh-mem.log
+
+# test time
+N=5000
+
+KTRACE=""
+#KTRACE="LD_PRELOAD=/usr/obj/lib/libc/libc.so.96.1 MALLOC_OPTIONS=TTD ktrace -tu"
+VERBOSE=""
+#VERBOSE="-v"
 SSH=/usr/src/usr.bin/ssh/ssh/obj/ssh
-ctrl=mux$RANDOM
+ctrl=run/mux$RANDOM
 uniqstr=uniqstr$RANDOM
 euniqstr="[u]$(echo -n $uniqstr | cut -c 2-)"
-$KTRACE $SSH -oControlPath=$PWD/$ctrl -nNFssh.conf $uniqstr 2>&1 | tee ssh.out &
+eval $KTRACE $SSH $VERBOSE -oControlPath=$PWD/$ctrl -nNFssh.conf $uniqstr 2>&1 | tee run/ssh.out &
 master=$!
 trap "kill $master; rm -f $PWD/$ctrl" EXIT
 sleep 2
 
-ps -o 'pid dsiz command' | grep $euniqstr | tee -a ssh-mem.log
+ps www -o 'pid dsiz command' | grep $euniqstr | tee -a $log
 
 function do_parallel_work {
 	pids=""
@@ -29,11 +37,12 @@ function do_parallel_work {
 }
 
 
-for _ in $(jot 500); do
-	do_parallel_work 9
-	ps -o 'pid dsiz command' | grep $euniqstr | tee -a ssh-mem.log
+for _ in $(jot $N); do
+	do_parallel_work 9 # XXX: this number was not chosen arbitrarily
+	    # MaxSession and MaxStartup dont help
+	ps www -o 'pid dsiz command' | grep $euniqstr | tee -a $log
 done
 
 echo graceful shutdown
 sleep 10
-ps -o 'pid dsiz command' | grep $euniqstr | tee -a ssh-mem.log
+ps www -o 'pid dsiz command' | grep $euniqstr | tee -a $log

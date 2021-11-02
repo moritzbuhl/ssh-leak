@@ -1,7 +1,12 @@
 A reduced example on how to continiously increase the used data in ssh.
 
 Add a known_hosts file to the folder, then run test.sh.
-With more than one client using the mux socket, data increases steadily.
+
+To run the tests I do this:
+rcctl -f start sshd
+sh test.sh
+sh plot.sh # check if memory is growing
+
 
 plot.sh -	plot a line for each pid in ssh-mem.log using gnuplot
 test.sh -	run ssh using control sockets, log memory usage
